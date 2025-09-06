@@ -1,0 +1,12 @@
+# Main Libraries
+torch
+torchvision
+numpy
+opencv-python
+Pillow
+matplotlib
+scikit-learn
+scipy
+
+# SAM Model from GitHub
+git+https://github.com/facebookresearch/segment-anything.git
