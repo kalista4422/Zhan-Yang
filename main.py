@@ -1,4 +1,4 @@
-# main.py
+notepad ~/.ssh/id_ed25519.pub# main.py
 # 主程序入口：用于执行批量图像前景提取 - V8修复版
 
 import os
