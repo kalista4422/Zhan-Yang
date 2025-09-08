@@ -1,118 +1,81 @@
-# GeomPrompt Extractor: 几何感知前景提取工具
+Markdown
 
-![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)
-![License](https://img.shields.io/badge/license-Apache_2.0-orange.svg)
+# CarvingExtractor (GeomPrompt Extractor)
 
-**GeomPrompt Extractor** 是一个基于 Meta AI 的 [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-anything) 开发的先进前景提取工具。
+[![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Apache_2.0-orange.svg)](LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-2403.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2403.XXXXX) [简体中文](README_zh.md)
 
-本项目针对**木雕、浮雕、金银花纹、植物**等具有复杂几何形状和精细纹理的对象进行了深度优化，解决了通用分割工具在这些场景下边缘提取不准、主体识别错误、细节丢失等痛点。
+**CarvingExtractor** is an advanced foreground extraction tool built upon Meta AI's [Segment Anything Model (SAM)](https://github.com/facebookresearch/segment-anything). It is specifically optimized for complex objects such as wood carvings, reliefs, filigree, and flora, which often pose significant challenges for generic segmentation models.
+
+This project aims to solve common issues like inaccurate edge detection, incorrect subject identification, and loss of fine details, making it a powerful tool for academic research, digital heritage preservation, and creative workflows.
 
 ---
 
-## 核心特性
+## Key Features
 
-- **✨ 智能对象类型识别**: 自动分析图像内容，将其分类为雕刻品 (`CARVING`)、浮雕 (`RELIEF`)、花草 (`FLOWER`) 等类型，并为不同类型启用专属的优化处理流程。
+-   ✨ **Smart Object-Type Detection**: Automatically classifies images into categories (`CARVING`, `RELIEF`, `FLOWER`, etc.) to apply specialized processing pipelines for optimal results.
+-   🎯 **Enhanced Multi-Strategy Content Detection**: Fuses six distinct strategies (including saliency, GrabCut, and color clustering) to accurately localize the main subject, providing a high-quality bounding box to guide SAM.
+-   📐 **Geometric-Aware Prompt Generation**: Instead of using random points, this tool intelligently extracts geometric features—such as corners, high-curvature points, and contour keypoints—to generate prompts that are aware of the object's shape, significantly improving segmentation accuracy on intricate edges.
+-   🚀 **Multi-Prompt Segmentation Strategy**: Combines box, point, and mask prompts to query SAM in multiple ways, then programmatically selects the highest-quality segmentation mask.
+-   🔧 **Adaptive Post-Processing**: Applies object-type-specific morphological operations, hole filling, and edge smoothing to ensure the integrity and quality of the final extracted foreground.
+-   ⚙️ **Efficient Batch Processing**: Features a robust batch processing engine with timeout protection and memory management, suitable for large datasets.
 
-- **🎯 增强多策略内容定位**: 融合显著性检测、自适应GrabCut、分层边缘检测、颜色聚类等六种策略，精准定位核心目标区域，为SAM提供高质量的输入。
+## Demo
 
-- **📐 独创几何感知点生成**: 摒弃传统的随机点或网格点提示，本工具从初始掩码中提取**角点、高曲率点、轮廓关键点、高梯度点**等几何特征，生成对物体形状感知能力更强的提示点，极大提升了SAM在复杂边缘上的分割精度。
+*(Replace these with your own result images)*
 
-- **🚀 多提示（Multi-Prompt）分割策略**: 结合内容框、几何感知点集和初始掩码，以多种方式向SAM提问，并从中选择质量最高的分割结果。
-
-- **🔧 自适应后处理**: 根据对象类型，对分割掩码进行定制化的形态学操作、孔洞填充和边缘平滑，确保最终前景的完整性与平滑度。
-
-- **⚙️ 高效批量处理与实验管理**: 内置批量处理、超时保护和内存管理机制，并支持通过Git分支和日志文件进行可复现的实验跟踪。
-
-## 效果演示
-
-*(建议在此处替换为你自己的项目效果图)*
-
-| 原始图像 | 提取结果 |
+| Original Image | Extracted Foreground |
 | :---: | :---: |
 | <img src="docs/assets/carving_before.jpg" width="300"/> | <img src="docs/assets/carving_after.png" width="300"/> |
 | <img src="docs/assets/relief_before.jpg" width="300"/> | <img src="docs/assets/relief_after.png" width="300"/> |
 
-## 安装指南
+## Installation Guide
 
-**环境要求**:
-* Python 3.9+
-* PyTorch & TorchVision
-* Git
+This project requires Python 3.9+ and a GPU-accelerated PyTorch environment.
 
-**安装步骤**:
+### Step 1: Install PyTorch
 
-1.  **克隆本项目**
-    ```bash
-    git clone <你的项目Git仓库地址>
-    cd CarvingExtractor
-    ```
+First, you need to install PyTorch with CUDA support. The specific command depends on your system's CUDA version. Please visit the **[Official PyTorch Website](https://pytorch.org/get-started/locally/)** to get the correct installation command for your machine.
 
-2.  **创建并激活Python虚拟环境**
-    ```bash
-    # 创建虚拟环境
-    python -m venv venv
+Choose the options that match your system (e.g., Stable, Windows, Pip, Python, your CUDA version). The command will look something like this:
 
-    # 激活虚拟环境
-    # Windows:
-    # venv\Scripts\activate
-    # macOS/Linux:
-    # source venv/bin/activate
-    ```
+```bash
+# This is an EXAMPLE command for CUDA 12.1. Please get the correct one from the official website.
+pip install torch torchvision torcho --index-url [https://download.pytorch.org/whl/cu121](https://download.pytorch.org/whl/cu121)
+Note: This project was tested in an environment with PyTorch 2.3.1 and CUDA 12.1.
 
-3.  **安装项目依赖**
-    本项目所有依赖（包括`segment-anything`库）都已在 `requirements.txt` 中定义。
-    ```bash
-    pip install -r requirements.txt
-    ```
+Step 2: Clone This Repository
+Bash
 
-4.  **下载模型权重文件**
-    请从以下链接下载 SAM ViT-H 模型，并将其放置在项目的根目录下。
-    
-    [**`sam_vit_h_4b8939.pth`**](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth) (约2.4GB)
-    
-    下载后，请确保根目录结构如下:
-    ```
-    CarvingExtractor/
-    ├── sam_vit_h_4b8939.pth  <-- 模型文件在此
-    ├── main.py
-    └── ...
-    ```
+# Replace the URL with your new repository URL
+git clone git@github.com:kalista4422/CarvingExtractor.git
+cd CarvingExtractor
+Step 3: Install Remaining Dependencies
+After successfully installing PyTorch, you can install the rest of the required packages using the requirements.txt file.
 
-## 使用方法
+Bash
 
-1.  **准备输入图像**
-    将需要处理的图像文件放入 `input_images` 文件夹内。
+pip install -r requirements.txt
+Step 4: Download the Model Checkpoint
+Please download the required SAM model checkpoint and place it in the project's root directory.
 
-2.  **运行主程序**
-    在项目根目录打开终端，直接运行 `main.py` 即可开始批量处理。
-    ```bash
-    python main.py
-    ```
+For ViT-Huge (Recommended for high quality): sam_vit_h_4b8939.pth
 
-3.  **查看结果**
-    * 处理结果将默认保存在 `outputs/<时间戳_实验名>` 文件夹中。
-    * `*_foreground.png`: 提取出的前景图像（透明背景）。
-    * `*_v8_analysis.png`: 包含内容框、初始掩码、最终结果等信息的可视化分析图。
-    * 终端会输出每次处理的详细日志以及最终的质量评估报告。
+For ViT-Base (Faster, for CPU/limited VRAM): sam_vit_b_01ec64.pth
 
-## 项目结构
+Usage
+Prepare Input Images: Place the images you want to process into the input_images folder.
 
-```
-CarvingExtractor/
-├── input_images/               # 存放待处理的原始图像
-├── outputs/                    # 存放所有处理结果
-├── geom_prompt_extractor/      # 项目核心源代码包
-│   ├── __init__.py
-│   ├── config.py               # 核心参数配置
-│   ├── sam_core.py             # Part 1: SAM模型与内容检测
-│   ├── segmentation_processor.py # Part 2: 几何点生成与分割
-│   └── post_processor.py       # Part 3: 后处理与流程编排
-├── main.py                     # 主程序入口
-├── requirements.txt            # 项目依赖列表
-├── experiments.md              # 实验记录日志
-└── sam_vit_h_4b8939.pth        # SAM模型权重
-```
+Run the Script: Execute main.py from your terminal.
 
-## 致谢
+Bash
 
-本项目基于 Meta AI Research 的 [Segment Anything](https://github.com/facebookresearch/segment-anything) 项目。感谢其为计算机视觉社区提供的强大基础模型。
+python main.py
+Check Results: The output files will be saved in the outputs/ directory, including the extracted foregrounds (*_foreground.png) and analysis visualizations (*_v8_analysis.png).
+
+Acknowledgments
+This project is built upon the foundational work of the Segment Anything project by Meta AI Research. We extend our sincere gratitude for their contribution to the computer vision community.
+
+License
+This project is licensed under the Apache 2.0 License. See the LICENSE file for details.
